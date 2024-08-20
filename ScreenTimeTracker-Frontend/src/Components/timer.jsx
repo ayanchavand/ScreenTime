@@ -15,12 +15,16 @@ export default function Timer(){
     const seconds = String(time % 60).padStart(2, '0');
 
     return(
-        <div className='flex flex-col items-center justify-center h-screen'>
-            <h1 className="text-9xl ">
-            {hours}:{minutes}:{seconds}
-            </h1>
-            <h5 className="">Current Session</h5>
-        </div>
+        <>  
+            <div className='flex flex-col items-center justify-center h-screen'>
+                <p>Hello, user</p>
+                <h1 className="text-9xl m-6">
+                {hours}:{minutes}:{seconds}
+                </h1>
+                <h5 className="">Current Session</h5>
+            </div>
+        </> 
+        
         
     )
 }
