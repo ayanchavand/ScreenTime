@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-require('dotenv').config()
+
 
 import {auth} from '../utils/firebase'
 

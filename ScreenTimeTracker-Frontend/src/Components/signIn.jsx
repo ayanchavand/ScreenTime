@@ -1,6 +1,7 @@
 import React from "react";
 import {auth} from '../utils/firebase'
-    
+
+
 export default function SignIn(){
     const onSignInWithGoogle = () =>{
         const provider = new auth.GoogleAuthProvider()
