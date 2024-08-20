@@ -1,15 +1,20 @@
-import { useState } from 'react'
 import './App.css'
 import Timer from './Components/timer'
 import Header from './Components/header'
 import SignIn from './Components/signIn'
 
+import firebaseApp from './utils/firebase'
+
+import {useAuthState} from 'react-firebase-hooks/auth'
+
+
 function App() {
 
+  const [user] = useAuthState(auth)  
   return (
     <>
-      <SignIn/>
-       
+      {user ? <Timer/> : <SignIn/>}
+        
     </>
   )
 }

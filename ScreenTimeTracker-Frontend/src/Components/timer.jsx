@@ -1,5 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
+require('dotenv').config()
+
+import {auth} from '../utils/firebase'
 
 export default function Timer(){
     const [time, setTime] = useState(0)
@@ -17,11 +20,12 @@ export default function Timer(){
     return(
         <>  
             <div className='flex flex-col items-center justify-center h-screen'>
-                <p>Hello, user</p>
+                <p>Hello, {auth.currentUser.displayName}</p>
                 <h1 className="text-9xl m-6">
                 {hours}:{minutes}:{seconds}
                 </h1>
                 <h5 className="">Current Session</h5>
+                <button onClick={() => auth.signOut()} className="border border-spacing-2 p-2 bg-or m-4">Sign Out</button>
             </div>
         </> 
         
