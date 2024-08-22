@@ -2,7 +2,7 @@
     import { useState, useEffect, useRef } from "react";
     import {auth, firestore, doc, setDoc, getDoc} from '../utils/firebase'
     import '../utils/time'
-import { toHour, toMin, toSec } from "../utils/time";
+    import { toHour, toMin, toSec } from "../utils/time";
 
 
     //TODO: break this into smaller components 
@@ -10,6 +10,8 @@ import { toHour, toMin, toSec } from "../utils/time";
     export default function Timer(){
         const [time, setTime] = useState(0)
         const [userData, setUserData] = useState({})
+        const [loading, setLoading] = useState(true) 
+
         const seshArrRef = useRef([])
         const userDoc = doc(firestore, 'users/' + auth.currentUser.uid)
 
@@ -17,26 +19,40 @@ import { toHour, toMin, toSec } from "../utils/time";
         const today = now.toISOString().split('T')[0]
 
         //DA DATA FETCH HOOK
-        useEffect(() =>{
-            const getUserData = async () =>{
-                try{
-                    const data = (await getDoc(userDoc)).data()
-                    setUserData(data)
-
-                    console.log(data)
-                    //this just copies the session array to local array and
-                    //that bracket is for dynamic key stuff
-                    seshArrRef.current = [...data.screenTime[today].sessionTimeArray,0]
-                    console.log('inside session lol: '+ seshArrRef.current)
-                }
-                catch(error){
-                    //nice error message, have fun figuring out what oops
-                    //means in your console when something breaks lol
-                    console.error('oops')
+        //TODO: REFACTOR THIS GARBAGE
+        useEffect(() => {
+            const getUserData = async () => {
+                try {
+                    const data = (await getDoc(userDoc)).data();
+                    if (!data) {
+                        const writeData = async () => {
+                            const userData = {
+                                lastSessionDate: 'Not Available',
+                                screenTime: {
+                                    [today]: {
+                                        sessionTimeArray: []
+                                    }
+                                }
+                            };
+                            try {
+                                await setDoc(userDoc, userData);
+                                setUserData(userData);
+                            } catch (error) {
+                                console.error(error.message);
+                            }  
+                        }
+                        await writeData();
+                    } else {
+                        setUserData(data);
+                        seshArrRef.current = [...data.screenTime[today].sessionTimeArray, 0];
+                    }
+                    setLoading(false); // Set loading to false after data is fetched
+                } catch (error) {
+                    console.error(error.message);
                 }
             }
-            getUserData()
-        },[])
+            getUserData();
+        }, []);
         
         //DA TIME INCREMENT HOOK
         useEffect(() => {
@@ -77,12 +93,15 @@ import { toHour, toMin, toSec } from "../utils/time";
           })
         
         //DA PER MIN UPDATE CYCLE HOOK
+
+        //TODO: REFACTOR THIS BITCH IN A SEPRATE DB IO FILE
         useEffect(() =>{
             seshArrRef.current[seshArrRef.current.length - 1] = time; 
             const writeData = async () =>{
                 const now = new Date()
                 const today = now.toISOString().split('T')[0]
                 const userData = {
+                    lastSessionDate: today,
                     screenTime: {
                         [today]: {
                             sessionTimeArray: seshArrRef.current
@@ -91,7 +110,7 @@ import { toHour, toMin, toSec } from "../utils/time";
                 }
                 try{
                     console.log("new entry added    ")
-                    setDoc(userDoc,userData, {merge: true})
+                    await setDoc(userDoc,userData, {merge: true})
                 } catch(error){
                     console.error(error.message)
                 }  
@@ -108,6 +127,13 @@ import { toHour, toMin, toSec } from "../utils/time";
             }
         },[minutes])
         */
+        if (loading) {
+            return 
+            <div className='flex flex-col items-center justify-center h-screen'>
+            <h1>Loading...</h1>; // Show loading indicator while fetching data
+            </div>
+        }
+
         return(
             <> 
                 <div className='flex flex-col items-center justify-center h-screen'>
@@ -120,7 +146,9 @@ import { toHour, toMin, toSec } from "../utils/time";
                     <p>Last Session: {userData.lastSessionDate}</p>
                     <button onClick={() => auth.signOut()} className="border border-spacing-2 p-2 bg-or m-4">Sign Out</button>
 
-                    <p className="mt-8">Total Time Today: {toHour(savedTime)}:{toMin(savedTime)}: {toSec(savedTime)}</p>
+                    <p className="mt-8">Total Time Today: {toHour(savedTime)}:{toMin(savedTime)}:{toSec(savedTime)}</p>
+                    <p className="mt-1">Number of Sessions Today: {(seshArrRef.current.length == 0) ? seshArrRef.current.length: seshArrRef.current.length -1}</p>
+
                 </div>
             </>  
         )
