@@ -1,21 +1,31 @@
     import React from "react";
-    import { useState, useEffect } from "react";
+    import { useState, useEffect, useRef } from "react";
     import {auth, firestore, doc, setDoc, getDoc} from '../utils/firebase'
 
 
-    //TODO: break this into smaller components cuz this is basically the home page
+    //TODO: break this into smaller components 
+    //cuz this is basically the home page now
     export default function Timer(){
         const [time, setTime] = useState(0)
         const [userData, setUserData] = useState({})
+        const seshArrRef = useRef([])
         const userDoc = doc(firestore, 'users/' + auth.currentUser.uid)
 
+        const now = new Date()
+        const today = now.toISOString().split('T')[0]
+
+        //DA DATA FETCH HOOK
         useEffect(() =>{
             const getUserData = async () =>{
                 try{
                     const data = (await getDoc(userDoc)).data()
                     setUserData(data)
-                    console.log(data)
 
+                    console.log(data)
+                    //this just copies the session array to local array and
+                    //that bracket is for dynamic key stuff
+                    seshArrRef.current = [...data.screenTime[today].sessionTimeArray,0]
+                    console.log('inside session lol: '+ seshArrRef.current)
                 }
                 catch(error){
                     //nice error message, have fun figuring out what oops
@@ -25,20 +35,24 @@
             }
             getUserData()
         },[])
-
+        
+        //DA TIME INCREMENT HOOK
         useEffect(() => {
             let intervalId = setInterval(() => setTime(prevTime => prevTime + 1), 1000)
             return () => clearInterval(intervalId) // Clear interval on unmount
-
         }, []);
 
+        /*
         useEffect(() => {
             const writeData = async () =>{
-                const now = new Date();
-                const today = now.toISOString().split('T')[0];
-                console.log(today);
+                console.log(today)
                 const userData = {
-                    lastSessionDate: today
+                    lastSessionDate: today,
+                    screenTime: {
+                        [today]: {
+                            sessionTimeArray: []
+                        }
+                    }
                 }
                 try{
                     setDoc(userDoc,userData, {merge: true})
@@ -50,10 +64,41 @@
             writeData()
         }, [])
 
+        */
+
+        //TODO: helper time functions for these conversions
+        //will probably go in util/time.js  
         const hours = String(Math.floor(time / 3600)).padStart(2, '0')
         const minutes = String(Math.floor((time % 3600) / 60)).padStart(2, '0')
         const seconds = String(time % 60).padStart(2, '0')
 
+        useEffect(() =>{
+            seshArrRef.current[seshArrRef.current.length - 1] = time; 
+            console.log("session: "+ seshArrRef)
+            console.log("Today" + today)
+            const writeData = async () =>{
+                const now = new Date()
+                const today = now.toISOString().split('T')[0]
+                console.log(today)
+                const userData = {
+                    screenTime: {
+                        [today]: {
+                            sessionTimeArray: seshArrRef.current
+                        }
+                    }
+                }
+                try{
+                    console.log("new entry added    ")
+                    setDoc(userDoc,userData, {merge: true})
+                } catch(error){
+                    console.error(error.message)
+                }  
+            }
+             if (time !== 0 && time % 60 === 0) {
+                writeData();
+             } 
+        }, [minutes])
+    
         /*
         useEffect(() =>{
             const userData = {
