@@ -1,6 +1,8 @@
     import React from "react";
     import { useState, useEffect, useRef } from "react";
     import {auth, firestore, doc, setDoc, getDoc} from '../utils/firebase'
+    import '../utils/time'
+import { toHour, toMin, toSec } from "../utils/time";
 
 
     //TODO: break this into smaller components 
@@ -66,11 +68,9 @@
 
         */
 
-        //TODO: helper time functions for these conversions
-        //will probably go in util/time.js  
-        const hours = String(Math.floor(time / 3600)).padStart(2, '0')
-        const minutes = String(Math.floor((time % 3600) / 60)).padStart(2, '0')
-        const seconds = String(time % 60).padStart(2, '0')
+        const hours = toHour(time)
+        const minutes =toMin(time)
+        const seconds = toSec(time)
 
         useEffect(() =>{
             seshArrRef.current[seshArrRef.current.length - 1] = time; 
