@@ -67,19 +67,21 @@ import { toHour, toMin, toSec } from "../utils/time";
         }, [])
 
         */
-
         const hours = toHour(time)
         const minutes =toMin(time)
         const seconds = toSec(time)
-
+        let savedTime = 0
+        seshArrRef.current.forEach(number => {
+            // Add the current element to the sum
+            savedTime += number;
+          })
+        
+        //DA PER MIN UPDATE CYCLE HOOK
         useEffect(() =>{
             seshArrRef.current[seshArrRef.current.length - 1] = time; 
-            console.log("session: "+ seshArrRef)
-            console.log("Today" + today)
             const writeData = async () =>{
                 const now = new Date()
                 const today = now.toISOString().split('T')[0]
-                console.log(today)
                 const userData = {
                     screenTime: {
                         [today]: {
@@ -117,6 +119,8 @@ import { toHour, toMin, toSec } from "../utils/time";
                     <h4 className="m-2">Current Session</h4>
                     <p>Last Session: {userData.lastSessionDate}</p>
                     <button onClick={() => auth.signOut()} className="border border-spacing-2 p-2 bg-or m-4">Sign Out</button>
+
+                    <p className="mt-8">Total Time Today: {toHour(savedTime)}:{toMin(savedTime)}: {toSec(savedTime)}</p>
                 </div>
             </>  
         )
