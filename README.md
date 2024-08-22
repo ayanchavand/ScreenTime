@@ -1,11 +1,11 @@
-##Dependencies
+## Dependencies
 
-#Frontend
+# Frontend
 Vite-react-js
 Tailwind
 Firebase
 React-firebase-hooks
 
-#Backend
+# Backend
 Express
 Nodemon
