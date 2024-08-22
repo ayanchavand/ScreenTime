@@ -1,10 +1,10 @@
 import React from "react";
-import {auth} from '../utils/firebase'
+import {auth, firebaseAuth} from '../utils/firebase'
 
 
 export default function SignIn(){
     const onSignInWithGoogle = () =>{
-        const provider = new auth.GoogleAuthProvider()
+        const provider = new firebaseAuth.GoogleAuthProvider()
         auth.signInWithPopup(provider)
     }
     return(
