@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from "react";
-
 import {auth} from '../utils/firebase'
 
 export default function Timer(){
