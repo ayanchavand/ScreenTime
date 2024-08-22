@@ -33,32 +33,32 @@
                                         sessionTimeArray: []
                                     }
                                 }
-                            };
+                            }
                             try {
-                                await setDoc(userDoc, userData);
-                                setUserData(userData);
+                                await setDoc(userDoc, userData)
+                                setUserData(userData)
                             } catch (error) {
-                                console.error(error.message);
+                                console.error(error.message)
                             }  
                         }
-                        await writeData();
+                        await writeData()
                     } else {
-                        setUserData(data);
-                        seshArrRef.current = [...data.screenTime[today].sessionTimeArray, 0];
+                        setUserData(data)
+                        seshArrRef.current = [...data.screenTime[today].sessionTimeArray, 0]
                     }
-                    setLoading(false); // Set loading to false after data is fetched
+                    setLoading(false) // Set loading to false after data is fetched
                 } catch (error) {
-                    console.error(error.message);
+                    console.error(error.message)
                 }
             }
-            getUserData();
-        }, []);
+            getUserData()
+        }, [])
         
         //DA TIME INCREMENT HOOK
         useEffect(() => {
             let intervalId = setInterval(() => setTime(prevTime => prevTime + 1), 1000)
             return () => clearInterval(intervalId) // Clear interval on unmount
-        }, []);
+        }, [])
 
         /*
         useEffect(() => {
